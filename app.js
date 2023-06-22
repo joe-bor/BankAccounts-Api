@@ -1,6 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
-// require user routes
+const users = require("./routes/users");
 // require account routes
 // require transaction routes
 const app = express();
@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(morgan("combined"));
 // use urlencoded for my form
 //TODO: read about helmet
-// use the routers of each model
+app.use("/users", users);
 // use the routers of each model
 // use the routers of each model
 
