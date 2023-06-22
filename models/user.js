@@ -31,7 +31,7 @@ const userSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
-  // accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }],
+  accounts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Account" }],
   netWorth: {
     type: Number,
     min: 0,
