@@ -11,6 +11,26 @@ exports.getAccounts = async (req, res) => {
   }
 };
 
+exports.deleteAccount = async (req, res) => {
+  try {
+    const account = await Account.findByIdAndDelete({ _id: req.params.id });
+    res.json(
+      `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`
+    );
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+};
+
+exports.updateAccount = async (req, res) => {
+  try {
+    const account = await Account.findByIdAndUpdate(req.params.id, req.body);
+    res.json({ account });
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+};
+
 exports.createAccount = async (req, res) => {
   try {
     const account = new Account({
@@ -25,6 +45,15 @@ exports.createAccount = async (req, res) => {
     req.user.accounts.push(account._id);
     await req.user.save();
 
+    res.json({ account });
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+};
+
+exports.showAccount = async (req, res) => {
+  try {
+    const account = await Account.findById({ _id: req.params.id });
     res.json({ account });
   } catch (error) {
     res.status(400).send({ message: error.message });

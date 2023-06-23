@@ -7,12 +7,15 @@ const users = require("../controllers/users");
 router.get("/", users.auth, accounts.getAccounts);
 
 // Delete
+router.delete("/:id", users.auth, accounts.deleteAccount);
 
 // Update
+router.put("/:id", users.auth, accounts.updateAccount);
 
 // Create
 router.post("/", users.auth, accounts.createAccount);
 
 // Show
+router.get("/:id", users.auth, accounts.showAccount);
 
 module.exports = router;
