@@ -2,7 +2,7 @@ const express = require("express");
 const morgan = require("morgan");
 const users = require("./routes/users");
 const accounts = require("./routes/accounts");
-// require transaction routes
+const transactions = require("./routes/transactions");
 const app = express();
 
 //middleware
@@ -12,6 +12,6 @@ app.use(morgan("combined"));
 //TODO: read about helmet
 app.use("/users", users);
 app.use("/accounts", accounts);
-// use the routers of each model
+app.use("/transactions", transactions);
 
 module.exports = app;

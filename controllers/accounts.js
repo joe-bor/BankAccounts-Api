@@ -1,5 +1,16 @@
 const Account = require("../models/account");
 
+exports.freezeCheck = async (req, res, next) => {
+  try {
+    const account = await Account.findById(req.body.id);
+    if (!account || !account.isFrozen) throw new Error("Account Error");
+    req.acc = account;
+    next();
+  } catch (error) {
+    res.status(400).send({ message: error.message });
+  }
+};
+
 exports.getAccounts = async (req, res) => {
   try {
     const accounts = await Account.find({});
@@ -42,7 +53,6 @@ exports.updateAccount = async (req, res) => {
       await req.user.save();
     }
     // Then apply updates to account
-
     const updates = Object.keys(req.body);
     updates.forEach((updates) => {
       account[updates] = req.body[updates];
@@ -79,7 +89,7 @@ exports.createAccount = async (req, res) => {
 
 exports.showAccount = async (req, res) => {
   try {
-    const account = await Account.findById({ _id: req.params.id });
+    const account = await Account.findById(req.params.id);
     res.json({ account });
   } catch (error) {
     res.status(400).send({ message: error.message });
