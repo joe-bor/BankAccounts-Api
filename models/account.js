@@ -44,13 +44,24 @@ accountSchema.pre("save", async function (next) {
 });
 
 // Updates user's net worth upon account creation
-accountSchema.pre("save", async function (next) {
-  await this.populate("owner");
-  this.owner.netWorth += parseInt(this.balance);
-  await this.owner.markModified("netWorth");
-  await this.owner.save();
-  next();
-});
+// accountSchema.pre("save", async function (next) {
+//   await this.populate("owner");
+//   this.owner.netWorth += parseInt(this.balance);
+//   await this.owner.markModified("netWorth");
+//   await this.owner.save();
+//   next();
+// });
+
+// Update's user's net worth when balance changes
+// accountSchema.pre('save', async function (next) {
+// if (this.isModified('balance')) {
+// pre-save balance - post save balance = result
+// if result is positive (postBal is smaller) = withdraw
+// if result is (-) then (postBal is bigger) = deposit
+
+// this.owner.netWorth -= result
+// }
+// })
 
 // TODO: implement withdraw
 // TODO: implement deposit

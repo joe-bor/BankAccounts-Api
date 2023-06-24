@@ -1,7 +1,5 @@
 const Account = require("../models/account");
 
-// exports.createAccount = async (req, res) => {};
-
 exports.getAccounts = async (req, res) => {
   try {
     const accounts = await Account.find({});
@@ -35,7 +33,22 @@ exports.deleteAccount = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
   try {
-    const account = await Account.findByIdAndUpdate(req.params.id, req.body);
+    const account = await Account.findById(req.params.id);
+    // Check for balance changes
+    // To update user's net worth
+    if (req.body.balance) {
+      let accountBalanceDifference = req.body.balance - account.balance;
+      req.user.netWorth += accountBalanceDifference;
+      await req.user.save();
+    }
+    // Then apply updates to account
+
+    const updates = Object.keys(req.body);
+    updates.forEach((updates) => {
+      account[updates] = req.body[updates];
+    });
+    await account.save();
+
     res.json({ account });
   } catch (error) {
     res.status(400).send({ message: error.message });
@@ -54,6 +67,8 @@ exports.createAccount = async (req, res) => {
 
     //push new account into user's account[]
     req.user.accounts.push(account._id);
+    //update user's net worth
+    req.user.netWorth += account.balance;
     await req.user.save();
 
     res.json({ account });
