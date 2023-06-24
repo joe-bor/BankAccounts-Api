@@ -13,10 +13,20 @@ exports.getAccounts = async (req, res) => {
 
 exports.deleteAccount = async (req, res) => {
   try {
-    const account = await Account.findByIdAndDelete({ _id: req.params.id });
-    res.json(
-      `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`
-    );
+    const account = await Account.findById(req.params.id);
+    if (!account) {
+      throw new Error("Account not Found");
+    } else {
+      // remove account from owner's array
+      let indexOfToBeDeleted = req.user.accounts.indexOf(req.params.id);
+      req.user.accounts.splice(indexOfToBeDeleted, 1);
+      await req.user.save();
+      console.log(req.user);
+      account.deleteOne();
+      res.json(
+        `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`
+      );
+    }
   } catch (error) {
     res.status(400).send({ message: error.message });
   }

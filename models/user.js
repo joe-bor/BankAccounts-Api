@@ -18,6 +18,7 @@ const userSchema = new mongoose.Schema({
     trim: true,
     required: true,
     unique: true,
+    lowercase: true,
   },
   password: {
     type: String,
@@ -55,13 +56,22 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
+// userSchema.pre("save", async function (next) {
+//   this.populate("accounts");
+//   let combined = this.accounts.reduce((acc, curr) => {
+//     return acc + curr;
+//   }, 0);
+//   this.netWorth = combined;
+//   next();
+// });
+
 userSchema.methods.generateAuthToken = async function () {
   const accessToken = jwt.sign(
     {
       _id: this._id,
     },
-    secret,
-    { expiresIn: "1h" }
+    secret
+    // { expiresIn: "1h" }
   );
   return accessToken;
 };

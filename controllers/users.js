@@ -8,8 +8,7 @@ exports.auth = async (req, res, next) => {
     const token = req.header("Authorization").replace("Bearer ", "");
     const data = jwt.verify(token, secret);
     const user = await User.findOne({ _id: data._id });
-    if (!user || !user.isLoggedIn)
-      throw new Error({ message: "Invalid Credentials" });
+    if (!user || !user.isLoggedIn) throw new Error("Authentication Failed");
     req.user = user;
     next();
   } catch (error) {

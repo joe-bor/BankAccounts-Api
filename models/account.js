@@ -20,7 +20,7 @@ const accountSchema = new mongoose.Schema(
     },
     balance: {
       type: Number,
-      default: 0,
+      default: 100,
       min: 0,
     },
     owner: {
@@ -44,6 +44,25 @@ accountSchema.pre("save", async function (next) {
 });
 
 // TODO: pre 'save' hook => update owner's netWorth ?
+/*
+ class level - static variable that accumulates all instances' balance (same owner) ?
+ instance level - maybe freqCounter (owner : balance) ?
+*/
+
+accountSchema.pre("save", async function (next) {
+  // get balance, then add to owner.netWorth
+  await this.populate("owner");
+  this.owner.netWorth += parseInt(this.balance);
+  await this.owner.markModified("netWorth");
+  await this.owner.save();
+  console.log(` 
+  ${this}
+  ~~~~~~~~~~~~~~~~~
+  ${this.owner.netWorth}
+  ------------------------------------------------
+  `);
+  next();
+});
 
 // TODO: implement withdraw
 // TODO: implement deposit
