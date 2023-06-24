@@ -17,11 +17,12 @@ exports.deleteAccount = async (req, res) => {
     if (!account) {
       throw new Error("Account not Found");
     } else {
-      // remove account from owner's array
+      // Subtract account's balance to owner's net worth
+      req.user.netWorth -= account.balance;
+      // remove found account from owner's account array
       let indexOfToBeDeleted = req.user.accounts.indexOf(req.params.id);
       req.user.accounts.splice(indexOfToBeDeleted, 1);
       await req.user.save();
-      console.log(req.user);
       account.deleteOne();
       res.json(
         `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`

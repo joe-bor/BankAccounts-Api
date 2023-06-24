@@ -43,24 +43,12 @@ accountSchema.pre("save", async function (next) {
   next();
 });
 
-// TODO: pre 'save' hook => update owner's netWorth ?
-/*
- class level - static variable that accumulates all instances' balance (same owner) ?
- instance level - maybe freqCounter (owner : balance) ?
-*/
-
+// Updates user's net worth upon account creation
 accountSchema.pre("save", async function (next) {
-  // get balance, then add to owner.netWorth
   await this.populate("owner");
   this.owner.netWorth += parseInt(this.balance);
   await this.owner.markModified("netWorth");
   await this.owner.save();
-  console.log(` 
-  ${this}
-  ~~~~~~~~~~~~~~~~~
-  ${this.owner.netWorth}
-  ------------------------------------------------
-  `);
   next();
 });
 
