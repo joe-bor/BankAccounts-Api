@@ -7,7 +7,7 @@ const app = express();
 
 //middleware
 app.use(express.json());
-app.use(morgan("combined"));
+app.use(morgan("dev"));
 // use urlencoded for my form
 //TODO: read about helmet
 app.use("/users", users);

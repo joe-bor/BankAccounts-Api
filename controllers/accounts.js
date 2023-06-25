@@ -2,8 +2,8 @@ const Account = require("../models/account");
 
 exports.freezeCheck = async (req, res, next) => {
   try {
-    const account = await Account.findById(req.body.id);
-    if (!account || !account.isFrozen) throw new Error("Account Error");
+    const account = await Account.findById(req.params.id);
+    if (!account || account.isFrozen) throw new Error("Account Error");
     req.acc = account;
     next();
   } catch (error) {
@@ -26,10 +26,10 @@ exports.deleteAccount = async (req, res) => {
     if (!account) {
       throw new Error("Account not Found");
     } else {
-      // Subtract account's balance to owner's net worth
-      req.user.netWorth -= account.balance;
       // remove found account from owner's account array
-      let indexOfToBeDeleted = req.user.accounts.indexOf(req.params.id);
+      let indexOfToBeDeleted = req.user.accounts.findIndex((account) => {
+        return account._id.toString() === req.params.id;
+      });
       req.user.accounts.splice(indexOfToBeDeleted, 1);
       await req.user.save();
       account.deleteOne();
@@ -44,20 +44,17 @@ exports.deleteAccount = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
   try {
-    const account = await Account.findById(req.params.id);
-    // Check for balance changes
-    // To update user's net worth
-    if (req.body.balance) {
-      let accountBalanceDifference = req.body.balance - account.balance;
-      req.user.netWorth += accountBalanceDifference;
-      await req.user.save();
-    }
-    // Then apply updates to account
-    const updates = Object.keys(req.body);
-    updates.forEach((updates) => {
-      account[updates] = req.body[updates];
+    const account = await Account.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
     });
     await account.save();
+
+    // Makes sure changes are 'relayed' to user' accounts
+    let indexOfToBeUpdated = req.user.accounts.findIndex((account) => {
+      return account._id.toString() === req.params.id;
+    });
+    req.user.accounts[indexOfToBeUpdated] = account;
+    await req.user.save();
 
     res.json({ account });
   } catch (error) {
@@ -75,10 +72,8 @@ exports.createAccount = async (req, res) => {
     });
     await account.save();
 
-    //push new account into user's account[]
-    req.user.accounts.push(account._id);
-    //update user's net worth
-    req.user.netWorth += account.balance;
+    //add new account into user's account[]
+    req.user.accounts.push(account);
     await req.user.save();
 
     res.json({ account });

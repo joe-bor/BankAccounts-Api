@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const Account = require("../models/account");
 
 const transactionSchema = new mongoose.Schema({
   category: {
@@ -20,11 +21,7 @@ const transactionSchema = new mongoose.Schema({
     default: Date.now(),
     required: true,
   },
-  account: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Account",
-    required: true,
-  },
+  forAccount: Account.schema,
 });
 
 const Transaction = mongoose.model("Transaction", transactionSchema);
