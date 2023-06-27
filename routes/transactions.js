@@ -4,15 +4,33 @@ const users = require("../controllers/users");
 const accounts = require("../controllers/accounts");
 const transactions = require("../controllers/transactions");
 
-// Index - display ALL transactions
+// Index - display ALL transactions of accounts owned by the logged in user
 router.get("/", users.auth, transactions.getTransactions);
 
-// Create - withdraw / deposit to specific account
+// Withdraw ( create transaction && update account && update user)
 router.post(
-  "/:id/withdraw",
+  "/withdraw",
   users.auth,
   accounts.freezeCheck,
-  transactions.createTransaction
+  transactions.withdraw
 );
 
+// Deposit ( create transaction && update account && update user)
+router.post("/deposit", users.auth, accounts.freezeCheck, transactions.deposit);
+
+//Transfer ( create transaction && update account && update user)
+router.post(
+  "/transfer",
+  users.auth,
+  accounts.freezeCheck,
+  transactions.transfer
+);
+
+// Show
+router.get(
+  "/:id",
+  users.auth,
+  accounts.freezeCheck,
+  transactions.showTransaction
+);
 module.exports = router;

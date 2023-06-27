@@ -2,7 +2,7 @@ const Account = require("../models/account");
 
 exports.freezeCheck = async (req, res, next) => {
   try {
-    const account = await Account.findById(req.params.id);
+    const account = await Account.findById(req.body.id);
     if (!account || account.isFrozen) throw new Error("Account Error");
     req.acc = account;
     next();
