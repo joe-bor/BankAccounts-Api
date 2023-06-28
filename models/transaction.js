@@ -5,7 +5,7 @@ const transactionSchema = new mongoose.Schema(
   {
     category: {
       type: String,
-      enum: ["withdraw", "deposit"],
+      enum: ["withdraw", "deposit", "transfer"],
       required: true,
     },
     description: {
@@ -25,6 +25,13 @@ const transactionSchema = new mongoose.Schema(
     forAccount: {
       type: mongoose.SchemaTypes.ObjectId,
       ref: "Account",
+    },
+    transferRecipient: {
+      type: mongoose.SchemaTypes.ObjectId,
+      ref: "Account",
+      required: function () {
+        return this.category === "transfer";
+      },
     },
   },
   {

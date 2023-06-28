@@ -86,7 +86,36 @@ exports.transfer = async function (req, res) {
       description: req.body.description,
       amount: req.body.amount,
       forAccount: req.acc,
+      transferRecipient: req.params.recipientId,
     });
+
+    // update sending account's properties
+    req.acc.transactions.push(transaction._id);
+    req.acc.balance -= req.body.amount;
+    await req.acc.save();
+    await transaction.save();
+
+    // update user doc
+    let indexOfSendingAccount = req.user.accounts.findIndex((account) => {
+      return account._id.toString() === req.body.id;
+    });
+    req.user.accounts[indexOfSendingAccount] = req.acc;
+    await req.user.save();
+
+    // update receiving account's properties
+    const recipient = await Account.findById(req.params.recipientId);
+
+    recipient.balance += req.body.amount;
+    await recipient.save();
+
+    // update user doc
+    let indexOfReceivingAccount = req.user.accounts.findIndex((account) => {
+      return account._id.toString() === req.params.recipientId;
+    });
+    req.user.accounts[indexOfReceivingAccount] = recipient;
+    await req.user.save();
+
+    res.json({ transaction });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }

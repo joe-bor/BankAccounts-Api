@@ -20,7 +20,7 @@ router.post("/deposit", users.auth, accounts.freezeCheck, transactions.deposit);
 
 //Transfer ( create transaction && update account && update user)
 router.post(
-  "/transfer",
+  "/transfer/:recipientId",
   users.auth,
   accounts.freezeCheck,
   transactions.transfer
