@@ -37,10 +37,6 @@ const accountSchema = new mongoose.Schema(
   }
 );
 
-// TODO: implement withdraw
-// TODO: implement deposit
-// TODO: implement transfer ??
-
 const Account = mongoose.model("Account", accountSchema);
 
 module.exports = Account;
