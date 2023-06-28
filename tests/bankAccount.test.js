@@ -24,7 +24,7 @@ afterAll(async () => {
   server.close();
 });
 
-describe("Testing the user-api endpoints", () => {
+describe("Testing the user-endpoints of bank accounts api", () => {
   test('It should create a new "user" document', async () => {
     const response = await request(app).post("/users/signup").send({
       name: "joe bor",
@@ -126,17 +126,35 @@ describe("Testing the user-api endpoints", () => {
     const response = await request(app)
       .post("/users/logout")
       .set("Authorization", `Bearer ${token}`);
-    console.log(response.body.user);
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty("message");
   });
 });
 
-//*Test suite for Accounts
+// Factory
+async function createAuthorizedUser(uniqueEmail) {
+  const user = new User({
+    name: "Test",
+    email: uniqueEmail,
+    password: "Test-password!",
+    isLoggedIn: true,
+  });
+  await user.save();
+  const token = await user.generateAuthToken();
+  return { user, token };
+}
 
-//Create
+// Test suite for Accounts
+describe("Testing the accounts-endpoints of the api", () => {
+  test('It should create a new "account" document', async () => {
+    const { user, token } = await createAuthorizedUser("Test-email1");
+    console.log(user);
+    console.log(token);
+  });
 
-//Index
+  //Index
+  // test("It should return a list of all the accounts", async () => {});
+});
 
 //Delete
 
