@@ -11,6 +11,46 @@ const User = require("../models/user");
 const Account = require("../models/account");
 const Transaction = require("../models/transaction");
 
+/*********************************************************/
+
+// Factory
+async function createAuthorizedUser() {
+  const user = new User({
+    name: "Test",
+    email: "test-email",
+    password: "Test-password!",
+    isLoggedIn: true,
+  });
+  await user.save();
+  const token = await user.generateAuthToken();
+  return { user, token };
+}
+
+async function createAccountForAuthUser() {
+  const { user, token } = await createAuthorizedUser();
+  const account = new Account({
+    name: "Test-Account",
+    category: "checking",
+    balance: 600,
+    owner: user._id,
+  });
+  await account.save();
+  return { user, token, account };
+}
+
+async function createTransactionForAccountOfAuthUser() {
+  const { user, token, account } = await createAccountForAuthUser();
+  const transaction = new Transaction({
+    category: "deposit",
+    description: "Monthly Recurring Revenue",
+    amount: 200,
+    forAccount: account,
+  });
+  await transaction.save();
+  return { user, token, account, transaction };
+}
+
+/***************************************************************/
 let mongoServer;
 
 beforeAll(async () => {
@@ -54,33 +94,19 @@ describe("Testing the user-endpoints of bank accounts api", () => {
   });
 
   test("It should show a user", async () => {
-    const user = new User({
-      name: "Ethan",
-      email: "Ethan-email",
-      password: "Ethan-password!",
-      isLoggedIn: true,
-    });
-    await user.save();
-    const token = await user.generateAuthToken();
+    const { user, token } = await createAuthorizedUser();
     const response = await request(app)
       .get(`/users/${user._id}`)
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.user.name).toEqual("Ethan");
-    expect(response.body.user.email).toEqual("ethan-email");
+    expect(response.body.user.name).toEqual("Test");
+    expect(response.body.user.email).toEqual("test-email");
   });
 
   //delete
   test("It should delete a user", async () => {
-    const user = new User({
-      name: "Nick Daly",
-      email: "Nick-email",
-      password: "N!ck-password",
-      isLoggedIn: true,
-    });
-    await user.save();
-    const token = await user.generateAuthToken();
+    const { user, token } = await createAuthorizedUser();
 
     const response = await request(app)
       .delete(`/users/${user._id}`)
@@ -92,36 +118,22 @@ describe("Testing the user-endpoints of bank accounts api", () => {
 
   //update
   test("It should update a user", async () => {
-    const user = new User({
-      name: "Jacob Zagorenko",
-      email: "jacob-email",
-      password: "jacob-password!",
-      isLoggedIn: true,
-    });
-    await user.save();
-    const token2 = await user.generateAuthToken();
+    const { user, token } = await createAuthorizedUser();
 
     const response = await request(app)
       .put(`/users/${user._id}`)
-      .set("Authorization", `Bearer ${token2}`)
+      .set("Authorization", `Bearer ${token}`)
       .send({
-        name: "Z. Jacob",
+        name: "Updated. Test",
       });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body.user.name).toEqual("Z. Jacob");
+    expect(response.body.user.name).toEqual("Updated. Test");
   });
 
   //logout
   test("It should logout the user", async () => {
-    const user = new User({
-      name: "Michael T",
-      email: "michael-email",
-      password: "michael-password!",
-      isLoggedIn: true,
-    });
-    await user.save();
-    const token = await user.generateAuthToken();
+    const { user, token } = await createAuthorizedUser();
 
     const response = await request(app)
       .post("/users/logout")
@@ -131,41 +143,136 @@ describe("Testing the user-endpoints of bank accounts api", () => {
   });
 });
 
-// Factory
-async function createAuthorizedUser(uniqueEmail) {
-  const user = new User({
-    name: "Test",
-    email: uniqueEmail,
-    password: "Test-password!",
-    isLoggedIn: true,
-  });
-  await user.save();
-  const token = await user.generateAuthToken();
-  return { user, token };
-}
-
 // Test suite for Accounts
 describe("Testing the accounts-endpoints of the api", () => {
-  test('It should create a new "account" document', async () => {
-    const { user, token } = await createAuthorizedUser("Test-email1");
-    console.log(user);
-    console.log(token);
+  //Index
+  test("It should return a list of all the accounts", async () => {
+    // creates users w/ accounts
+    const { user, token } = await createAuthorizedUser();
+    await createAccountForAuthUser();
+    await createAccountForAuthUser();
+
+    const response = await request(app)
+      .get("/accounts")
+      .set("Authorization", `Bearer ${token}`);
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty("accounts");
   });
 
-  //Index
-  // test("It should return a list of all the accounts", async () => {});
+  //Create
+  test('It should create a new "account" document', async () => {
+    const { user, token } = await createAuthorizedUser();
+    const response = await request(app)
+      .post("/accounts")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "Test-Account",
+        category: "checking",
+        balance: 600,
+      });
+    expect(response.statusCode).toBe(200);
+    expect(response.body.account.name).toBe("TEST-ACCOUNT");
+    expect(response.body.account.category).toBe("checking");
+    expect(response.body.account.balance).toBe(600);
+    expect(response.body.account.isFrozen).toBe(false);
+  });
+
+  //Delete
+  test("It should delete an account", async () => {
+    const { user, token, account } = await createAccountForAuthUser();
+    const response = await request(app)
+      .delete(`/accounts/${account._id}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual(
+      `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${user.name}`
+    );
+  });
+
+  //Update
+  test("It should update an account", async () => {
+    const { token, account } = await createAccountForAuthUser();
+    const response = await request(app)
+      .put(`/accounts/${account._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        name: "UPDATED ACCOUNT NAME",
+      });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.account.name).toBe("UPDATED ACCOUNT NAME");
+    expect(response.body.account.category).toBe("checking");
+    expect(response.body.account.balance).toBe(600);
+    expect(response.body.account.isFrozen).toBe(false);
+  });
+  //Show
+  test("It should show an account", async () => {
+    const { token, account } = await createAccountForAuthUser();
+    const response = await request(app)
+      .get(`/accounts/${account._id}`)
+      .set("Authorization", `Bearer ${token}`);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.account.name).toBe("TEST-ACCOUNT");
+    expect(response.body.account.category).toBe("checking");
+    expect(response.body.account.balance).toBe(600);
+    expect(response.body.account.isFrozen).toBe(false);
+  });
 });
 
-//Delete
-
-//Update
-
-//Show
-
 //*Test suit for transactions
+describe("Testing transaction-endpoints of api", () => {
+  // Index
+  test("It should return a list of transactions, from a chosen account of the logged in user", async () => {
+    const { user, token, account, transaction } =
+      await createTransactionForAccountOfAuthUser();
+    const transaction2 = new Transaction({
+      category: "withdraw",
+      description: "Lunch money",
+      amount: 50,
+      forAccount: account,
+    });
+    transaction2.save();
 
-// index
+    const response = await request(app)
+      .get("/transactions")
+      .set("Authorization", `Bearer ${token}`);
 
-// create
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toHaveProperty("transaction");
+  });
 
-// show
+  // Create
+  test("It should create a new transaction document", async () => {
+    const { token, account } = await createAccountForAuthUser();
+    const response = await request(app)
+      .post("/transactions/withdraw")
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        id: account._id,
+        description: "Yay! we got paid",
+        amount: 2,
+      });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.transaction.category).toEqual("withdraw");
+    expect(response.body.transaction.description).toEqual("Yay! we got paid");
+    expect(response.body.transaction.amount).toEqual(2);
+  });
+
+  // Show
+  test("It should show a transaction document found by it's id", async () => {
+    const { transaction, token, account } =
+      await createTransactionForAccountOfAuthUser();
+    const response = await request(app)
+      .get(`/transactions/${transaction._id}`)
+      .set("Authorization", `Bearer ${token}`)
+      .send({
+        id: account._id,
+      });
+
+    response.error ? console.log(response.error) : console.log(response.body);
+    expect(response.statusCode).toBe(200);
+  });
+});
