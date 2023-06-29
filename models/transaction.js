@@ -17,6 +17,10 @@ const transactionSchema = new mongoose.Schema(
       min: 0,
       required: true,
     },
+    currency: {
+      type: String,
+      default: "USD",
+    },
     date: {
       type: Date,
       default: Date.now(),

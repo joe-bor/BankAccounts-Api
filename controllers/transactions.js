@@ -25,7 +25,7 @@ exports.withdraw = async function (req, res) {
   try {
     if (req.body.category)
       throw new Error("Routes determine the transaction category");
-    const transaction = await Transaction({
+    const transaction = new Transaction({
       category: "withdraw",
       description: req.body.description,
       amount: req.body.amount,
@@ -51,12 +51,32 @@ exports.withdraw = async function (req, res) {
 
 exports.deposit = async function (req, res) {
   try {
+    let deposit;
+    // Check if category is being provided
     if (req.body.category)
       throw new Error("Routes determine the transaction category");
-    const transaction = await Transaction({
+
+    // * Converts the money being deposited to USD, if needed
+    if (req.body.currency !== "USD") {
+      const options = {
+        method: "GET",
+        headers: {
+          "X-RapidAPI-Key":
+            "0ef4c5b14bmshd22f360ffa5546fp1a94b8jsn1b58ef19c58e",
+          "X-RapidAPI-Host": "currency-converter5.p.rapidapi.com",
+        },
+      };
+      const response = await fetch(
+        `https://currency-converter5.p.rapidapi.com/currency/convert?format=json&from=${req.body.currency}&to=USD&amount=${req.body.amount}`,
+        options
+      );
+      const result = await response.json();
+      deposit = result.rates.USD.rate_for_amount;
+    }
+    const transaction = new Transaction({
       category: "deposit",
       description: req.body.description,
-      amount: req.body.amount,
+      amount: deposit || req.body.amount,
       forAccount: req.acc,
     });
 
@@ -81,7 +101,7 @@ exports.transfer = async function (req, res) {
   try {
     if (req.body.category)
       throw new Error("Routes determine the transaction category");
-    const transaction = await Transaction({
+    const transaction = new Transaction({
       category: "transfer",
       description: req.body.description,
       amount: req.body.amount,
