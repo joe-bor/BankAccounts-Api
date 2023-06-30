@@ -61,8 +61,7 @@ exports.deposit = async function (req, res) {
       const options = {
         method: "GET",
         headers: {
-          "X-RapidAPI-Key":
-            "0ef4c5b14bmshd22f360ffa5546fp1a94b8jsn1b58ef19c58e",
+          "X-RapidAPI-Key": process.env.API_KEY,
           "X-RapidAPI-Host": "currency-converter5.p.rapidapi.com",
         },
       };
