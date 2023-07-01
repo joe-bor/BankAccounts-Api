@@ -35,6 +35,8 @@ async function createAccountForAuthUser() {
     owner: user._id,
   });
   await account.save();
+  user.accounts.push(account);
+  await user.save();
   return { user, token, account };
 }
 
@@ -192,7 +194,7 @@ describe("Testing the accounts-endpoints of the api", () => {
 
   //Update
   test("It should update an account", async () => {
-    const { token, account } = await createAccountForAuthUser();
+    const { user, token, account } = await createAccountForAuthUser();
     const response = await request(app)
       .put(`/accounts/${account._id}`)
       .set("Authorization", `Bearer ${token}`)
@@ -206,6 +208,7 @@ describe("Testing the accounts-endpoints of the api", () => {
     expect(response.body.account.balance).toBe(600);
     expect(response.body.account.isFrozen).toBe(false);
   });
+
   //Show
   test("It should show an account", async () => {
     const { token, account } = await createAccountForAuthUser();

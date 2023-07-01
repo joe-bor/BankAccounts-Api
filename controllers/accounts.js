@@ -13,7 +13,7 @@ exports.freezeCheck = async (req, res, next) => {
 
 exports.getAccounts = async (req, res) => {
   try {
-    const accounts = await Account.find({});
+    const accounts = await Account.find({ owner: req.user._id });
     res.json({ accounts });
   } catch (error) {
     res.status(400).send({ message: error.message });
@@ -23,8 +23,8 @@ exports.getAccounts = async (req, res) => {
 exports.deleteAccount = async (req, res) => {
   try {
     const account = await Account.findById(req.params.id);
-    if (!account) {
-      throw new Error("Account not Found");
+    if (!account || account.owner.toString() !== req.user._id.toString()) {
+      throw new Error("User-Account Error");
     } else {
       // remove found account from owner's account array
       let indexOfToBeDeleted = req.user.accounts.findIndex((account) => {
@@ -44,6 +44,13 @@ exports.deleteAccount = async (req, res) => {
 
 exports.updateAccount = async (req, res) => {
   try {
+    // Checks if user is the owner of account
+    if (
+      !req.user.accounts.some(
+        (account) => account._id.toString() === req.params.id
+      )
+    )
+      throw new Error("You do not own this account");
     const account = await Account.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });

@@ -249,7 +249,7 @@ npm start
 
 - Terminate the server by pressing `command + C` twice if you are using a mac
 
-- Alternatively, you can type this command in your to kill all your servers in one command
+- Alternatively, you can type this command in your terminal to kill all your servers in one command
 
 ```
 pkill node
