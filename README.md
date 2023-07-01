@@ -39,25 +39,19 @@
   - Open up your terminal and create a new directory where you want the local repo to live, using
 
   ```
-
   mkdir <file-name>
-
   ```
 
   - Navigate into the directory using,
 
   ```
-
    cd <file-name>
-
   ```
 
   - Run the command, replacing the link with what we obtained from git hub
 
   ```
-
   git clone <link>
-
   ```
 
   - You should now have a copy of the project in your local repository
@@ -77,9 +71,7 @@
   - In your terminal, run the command to check if you have Node.js installed
 
   ```
-
   node -v
-
   ```
 
   - If this returns a version number, you have node installed in your machine
@@ -105,17 +97,13 @@
   - To install all the rest of the dependencies inside the `package.json` we can run this command in our terminal
 
   ```
-
   npm i
-
   ```
 
   - We also need to create our `.env` file that contains all the sensitive information
 
   ```
-
   touch .env
-
   ```
 
   - The following should go inside the `.env`
@@ -241,7 +229,7 @@ npm run load
 
   - To initiate, simply run
 
-```
+```zsh
 npm run test
 ```
 
@@ -255,6 +243,14 @@ npm run test
 
 - In your terminal, run this command to start the server without dev mode
 
-```
+```zsh
 npm start
+```
+
+- Terminate the server by pressing `command + C` twice if you are using a mac
+
+- Alternatively, you can type this command in your to kill all your servers in one command
+
+```
+pkill node
 ```
