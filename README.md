@@ -102,9 +102,10 @@
   - The following should go inside the `.env`
 
   ```
-  MONGO_URI=< connection string from MongoDB >
-  ACCESS_TOKEN_SECRET=< 256bit hash of your secret >
-  API_KEY=< API key from RapidAPI >
+  MONGO_URI=<connection string from MongoDB>
+  ACCESS_TOKEN_SECRET=<256bit hash of your secret>
+  API_KEY=<API key from RapidAPI>
+  PORT=3000
 
   ```
 
@@ -123,19 +124,110 @@ npm run dev
 
 - Essentially, we are telling nodemon to watch our server for changes, and every time we save a change, it automatically restarts the server for us.
 
+- Now our server is running
+
 ---
 
 ## _API Request with Postman_
 
--
--
-- ***
+- Visit [Postman](https://www.postman.com/)
+
+- Sign up for an account, and verify your email, if you don't already have one.
+
+- [Download](https://www.postman.com/downloads/) Postman.
+
+- ![Overview of Postman default workspace](https://i.imgur.com/KAgm4Rp.png)
+
+- Beside the `Overview` tab, click the `+` to make a new request tab
+
+  - This is where we configure the requests we will be sending to our server
+
+- Send a request to our user create route
+
+  - Choose `POST` as our HTTP Verb
+
+  - type `http://localhost:3000/users/signup` in the URL bar
+
+  - In the `body` tab, choose `raw` then `JSON` in the dropdown menu to it's right
+
+  - Copy this code over into the body
+
+  ```json
+  {
+    "name": "Test User",
+    "email": "Test-email@test.com",
+    "password": "Test-password!"
+  }
+  ```
+
+  - And hit send
+
+  - Below the request tab is our response tab
+
+    - Choose `Pretty` and select `JSON` in the dropdown
+
+  - You should see a response that looks similar to this:
+
+  ```json
+  {
+    "user": {
+      "name": "Test User",
+      "email": "test-email@test.com",
+      "password": "$2b$06$GC44SZxfwGVibFEk9zW7WuKwWRbeXr2tymEquh3bDOduNEiJLqjuW",
+      "isLoggedIn": false,
+      "_id": "64a05051fa21f48828ac1a0a",
+      "accounts": [],
+      "createdAt": "2023-07-01T16:12:01.330Z",
+      "updatedAt": "2023-07-01T16:12:01.330Z",
+      "__v": 0,
+      "netWorth": 0,
+      "id": "64a05051fa21f48828ac1a0a"
+    }
+  }
+  ```
+
+  - _Note: To access protected routes, there are a few step you must follow_
+
+    - _Go to the `Authorization` tab of your request_
+
+    - _Choose `Bearer Token` in the type dropdown_
+
+    - _Copy the `token` you obtained from the login route_
+
+  - ![Authorization in Postman](https://i.imgur.com/hWcB1qx.png)
+
+---
 
 ## _Run Tests_
 
--
--
--
--
+- Load testing
 
-## Start the app
+  - To load test, we can run this command in the terminal
+
+  - Additionally, you may edit the `artillery.yml` file to configure the stress test
+
+```zsh
+npm run load
+```
+
+- Unit Test for the endpoints
+
+  - This is done with Jest and Supertest
+
+  - All the tests are written in the `tests` directory
+
+  - To initiate, simply run
+
+```
+npm run test
+```
+
+---
+
+## _Start the server_
+
+- In your terminal, run this command to start the server without dev mode
+
+```
+npm start
+```

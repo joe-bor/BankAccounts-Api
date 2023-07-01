@@ -272,7 +272,6 @@ describe("Testing transaction-endpoints of api", () => {
         id: account._id,
       });
 
-    response.error ? console.log(response.error) : console.log(response.body);
     expect(response.statusCode).toBe(200);
   });
 });
