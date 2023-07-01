@@ -153,6 +153,3 @@ exports.showTransaction = async function (req, res) {
     res.status(400).send({ message: error.message });
   }
 };
-
-// TODO: User's who owns the account should be the only one that can see their transactions
-// the same goes for users -> accounts
