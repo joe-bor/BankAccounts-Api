@@ -25,6 +25,10 @@ exports.withdraw = async function (req, res) {
   try {
     if (req.body.category)
       throw new Error("Routes determine the transaction category");
+
+    if (req.acc.balance - req.body.amount < 0)
+      throw new Error("Insufficient Funds!");
+
     const transaction = new Transaction({
       category: "withdraw",
       description: req.body.description,
@@ -57,7 +61,7 @@ exports.deposit = async function (req, res) {
       throw new Error("Routes determine the transaction category");
 
     // * Converts the money being deposited to USD, if needed
-    if (req.body.currency !== "USD") {
+    if (req.body.currency && req.body.currency !== "USD") {
       const options = {
         method: "GET",
         headers: {
@@ -100,6 +104,10 @@ exports.transfer = async function (req, res) {
   try {
     if (req.body.category)
       throw new Error("Routes determine the transaction category");
+
+    if (req.acc.balance - req.body.amount < 0)
+      throw new Error("Insufficient Funds!");
+
     const transaction = new Transaction({
       category: "transfer",
       description: req.body.description,
