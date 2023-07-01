@@ -14,6 +14,18 @@
 
 ---
 
+## _Prerequisites_
+
+- [Node.js](https://nodejs.org/en)
+
+- [MongoDB account](https://account.mongodb.com/account/login)
+
+- [Postman account](https://identity.getpostman.com/signup)
+
+- [RapidApi account](https://rapidapi.com/auth/sign-up)
+
+---
+
 ## _Installation & Setup_
 
 - **Clone the repository**
@@ -50,6 +62,16 @@
 
   - You should now have a copy of the project in your local repository
 
+  - You can check by typing `ls` in your current location
+
+  - Then run `cd BankAccounts-Api` to access the clone repo, then run
+
+  ```
+  code .
+  ```
+
+  - To open the entire directory
+
 - **Check / Install Node**
 
   - In your terminal, run the command to check if you have Node.js installed
@@ -71,16 +93,13 @@
   - Make sure you are in your local repo's directory. To check, use the command
 
   ```
-
   pwd
-
   ```
 
   - Once you are in the right directory, run
 
   ```
   npm i -g nodemon
-
   ```
 
   - To install all the rest of the dependencies inside the `package.json` we can run this command in our terminal
@@ -106,7 +125,6 @@
   ACCESS_TOKEN_SECRET=<256bit hash of your secret>
   API_KEY=<API key from RapidAPI>
   PORT=3000
-
   ```
 
   - With these we are now ready to use the API
@@ -119,7 +137,6 @@
 
 ```
 npm run dev
-
 ```
 
 - Essentially, we are telling nodemon to watch our server for changes, and every time we save a change, it automatically restarts the server for us.
@@ -200,6 +217,8 @@ npm run dev
 
 ## _Run Tests_
 
+- Open up another terminal and follow the instructions below
+
 - Load testing
 
   - To load test, we can run this command in the terminal
@@ -209,6 +228,10 @@ npm run dev
 ```zsh
 npm run load
 ```
+
+- This is a summary of what the load test should return
+
+- ![Load test results](https://i.imgur.com/qjr2Tnd.png)
 
 - Unit Test for the endpoints
 
@@ -221,6 +244,10 @@ npm run load
 ```
 npm run test
 ```
+
+- You should see something like this for test results
+
+- ![Results of Unit Test](https://i.imgur.com/8H4s2X6.png)
 
 ---
 
