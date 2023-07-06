@@ -158,7 +158,10 @@ describe("Testing the accounts-endpoints of the api", () => {
       .get("/accounts")
       .set("Authorization", `Bearer ${token}`);
     expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty("accounts");
+    expect(response.body).toHaveProperty("paginatedAccounts");
+    expect(response.body.paginatedAccounts).toHaveProperty("totalResults");
+    expect(response.body.paginatedAccounts).toHaveProperty("page");
+    expect(response.body.paginatedAccounts).toHaveProperty("accounts");
   });
 
   //Create
@@ -243,7 +246,12 @@ describe("Testing transaction-endpoints of api", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toHaveProperty("transaction");
+    expect(response.body).toHaveProperty("paginatedTransactions");
+    expect(response.body.paginatedTransactions).toHaveProperty(
+      "totalTransactions"
+    );
+    expect(response.body.paginatedTransactions).toHaveProperty("page");
+    expect(response.body.paginatedTransactions).toHaveProperty("transactions");
   });
 
   // Create

@@ -3,6 +3,15 @@ const Transaction = require("../models/transaction");
 
 // Shows transactions of accounts owned by logged in user
 exports.getTransactions = async function (req, res) {
+  const page = req.query.page || 1;
+  const limit = req.query.limit || 4;
+  const skip = (page - 1) * limit;
+  let sort = req.query.sort || "amount";
+  req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+
+  let sortBy = {};
+  sort[1] ? (sortBy[sort[0]] = sort[1]) : (sortBy[sort[0]] = "asc");
+
   try {
     // this query returns an array of { _id: <value> }
     const userAccounts = await Account.find({ owner: req.user._id }).select(
@@ -11,10 +20,24 @@ exports.getTransactions = async function (req, res) {
     // array container for the account ids
     const idOFAccounts = userAccounts.map((account) => account._id);
 
-    const transaction = await Transaction.find({
+    const transactions = await Transaction.find({
+      forAccount: { $in: idOFAccounts },
+    })
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit);
+
+    const totalTransactions = await Transaction.countDocuments({
       forAccount: { $in: idOFAccounts },
     });
-    res.json({ transaction });
+    const totalPages = Math.ceil(totalTransactions / limit);
+
+    const paginatedTransactions = {
+      totalTransactions,
+      page: `Page ${page} of ${totalPages}`,
+      transactions,
+    };
+    res.json({ paginatedTransactions });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
