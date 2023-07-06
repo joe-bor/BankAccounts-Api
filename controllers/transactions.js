@@ -6,6 +6,7 @@ exports.getTransactions = async function (req, res) {
   const page = req.query.page || 1;
   const limit = req.query.limit || 4;
   const skip = (page - 1) * limit;
+  const search = req.query.search || "";
   let sort = req.query.sort || "amount";
   req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
 
@@ -25,11 +26,19 @@ exports.getTransactions = async function (req, res) {
     })
       .sort(sortBy)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .where("description")
+      .equals({ $regex: search, $options: "i" });
 
     const totalTransactions = await Transaction.countDocuments({
       forAccount: { $in: idOFAccounts },
-    });
+    })
+      .where("description")
+      .equals({ $regex: search, $options: "i" });
+
+    if (!transactions || totalTransactions === 0)
+      throw new Error("No transactions found, Query doesn't match");
+
     const totalPages = Math.ceil(totalTransactions / limit);
 
     const paginatedTransactions = {
@@ -37,6 +46,7 @@ exports.getTransactions = async function (req, res) {
       page: `Page ${page} of ${totalPages}`,
       transactions,
     };
+
     res.json({ paginatedTransactions });
   } catch (error) {
     res.status(400).send({ message: error.message });
