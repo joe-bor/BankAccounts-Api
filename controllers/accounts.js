@@ -13,8 +13,37 @@ exports.freezeCheck = async (req, res, next) => {
 
 exports.getAccounts = async (req, res) => {
   try {
-    const accounts = await Account.find({ owner: req.user._id });
-    res.json({ accounts });
+    // construct query params
+    const page = req.query.page || 1;
+    const limit = req.query.limit || 4;
+    const skip = (page - 1) * limit;
+    let sort = req.query.sort || "balance";
+    req.query.sort ? (sort = req.query.sort.split(",")) : (sort = [sort]);
+
+    let sortBy = {};
+    if (sort[1]) {
+      sortBy[sort[0]] = sort[1];
+    } else {
+      sortBy[sort[0]] = "asc";
+    }
+
+    // Query DB
+    const accounts = await Account.find({ owner: req.user._id })
+      .sort(sortBy)
+      .skip(skip)
+      .limit(limit);
+
+    const totalResults = await Account.countDocuments({ owner: req.user._id });
+    const totalPages = Math.ceil(totalResults / limit);
+
+    // Create detailed response
+    const paginatedAccounts = {
+      totalResults,
+      page: `Page ${page} of ${totalPages}`,
+      accounts: accounts,
+    };
+
+    res.json({ paginatedAccounts });
   } catch (error) {
     res.status(400).send({ message: error.message });
   }
