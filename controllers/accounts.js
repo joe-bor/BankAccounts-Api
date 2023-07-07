@@ -62,9 +62,9 @@ exports.deleteAccount = async (req, res) => {
       req.user.accounts.splice(indexOfToBeDeleted, 1);
       await req.user.save();
       account.deleteOne();
-      res.json(
-        `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`
-      );
+      res.json({
+        message: `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${req.user.name}`,
+      });
     }
   } catch (error) {
     res.status(400).send({ message: error.message });

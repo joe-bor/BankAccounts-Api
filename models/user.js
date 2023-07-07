@@ -74,8 +74,8 @@ userSchema.methods.generateAuthToken = async function () {
     {
       _id: this._id,
     },
-    secret
-    // { expiresIn: "1h" }
+    secret,
+    { expiresIn: "1h" }
   );
   return accessToken;
 };

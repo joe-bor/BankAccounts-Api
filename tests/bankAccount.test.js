@@ -190,7 +190,7 @@ describe("Testing the accounts-endpoints of the api", () => {
       .set("Authorization", `Bearer ${token}`);
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual(
+    expect(response.body.message).toEqual(
       `Successfully deleted ${account.name} with ID: ${account._id}, Owner: ${user.name}`
     );
   });

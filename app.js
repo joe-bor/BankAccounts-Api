@@ -8,8 +8,6 @@ const app = express();
 //middleware
 app.use(express.json());
 app.use(morgan("dev"));
-// use urlencoded for my form
-//TODO: read about helmet
 app.use("/users", users);
 app.use("/accounts", accounts);
 app.use("/transactions", transactions);
